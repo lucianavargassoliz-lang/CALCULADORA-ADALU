@@ -32,7 +32,7 @@ elif pagina == "Funciones":
 # luciana
 #hola 
 #ola
-
+#holapp
 
 ##DERIVADAS
 elif pagina == "Derivadas":
