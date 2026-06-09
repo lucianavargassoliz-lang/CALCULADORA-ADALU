@@ -29,22 +29,15 @@ elif pagina == "Funciones":
     st.text_input("Ingrese su funcion")
     st.button("CALCULAR ahora ")
 
-<<<<<<< HEAD
 # luciana
 #hola 
 
 
-=======
->>>>>>> 0d0429c91a10cd4efa6fd9c76047b9ea1647f077
 ##DERIVADAS
 elif pagina == "Derivadas":
     st.image("imagen1.jpeg", width=400)
     st.header("Módulo de Derivadas")
-<<<<<<< HEAD
     st.write()
-=======
-    st.write("app")
->>>>>>> 0d0429c91a10cd4efa6fd9c76047b9ea1647f077
 
 
 
@@ -55,4 +48,4 @@ elif pagina == "Integrales por Metodo por Sustitucion":
     st.image("imagen1.jpeg", width=400)
     st.header("Módulo de Integrales")
     st.write()
-    
+    #holaaa
