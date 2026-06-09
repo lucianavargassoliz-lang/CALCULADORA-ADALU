@@ -31,7 +31,7 @@ elif pagina == "Funciones":
 
 # luciana
 #hola 
-
+#ola
 
 
 ##DERIVADAS
