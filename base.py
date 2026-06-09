@@ -38,7 +38,7 @@ elif pagina == "Funciones":
 elif pagina == "Derivadas":
     st.image("imagen1.jpeg", width=400)
     st.header("Módulo de Derivadas")
-    st.write()
+    st.write(hola)
 
 
 
