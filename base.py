@@ -27,7 +27,7 @@ elif pagina == "Funciones":
     st.image("imagen1.jpeg", width=400)
     st.header("Módulo de Funciones")
     st.text_input("Ingrese su funcion")
-    st.button("CALCULAR")
+    st.button("CALCULAR ahora ")
 
 
 
