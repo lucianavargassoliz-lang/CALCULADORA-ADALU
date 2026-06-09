@@ -47,4 +47,5 @@ elif pagina == "Derivadas":
 elif pagina == "Integrales por Metodo por Sustitucion":
     st.image("imagen1.jpeg", width=400)
     st.header("Módulo de Integrales")
-    st.write()  
+    st.write()
+    #holaaa
