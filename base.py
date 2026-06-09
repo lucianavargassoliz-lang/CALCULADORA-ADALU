@@ -29,7 +29,7 @@ elif pagina == "Funciones":
     st.text_input("Ingrese su funcion")
     st.button("CALCULAR ahora ")
 
-
+# luciana
 
 
 
