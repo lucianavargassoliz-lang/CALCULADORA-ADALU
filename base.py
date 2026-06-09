@@ -31,14 +31,13 @@ elif pagina == "Funciones":
 
 # luciana
 #hola 
-#ola
-#holapp
+
 
 ##DERIVADAS
 elif pagina == "Derivadas":
     st.image("imagen1.jpeg", width=400)
     st.header("Módulo de Derivadas")
-    st.write(hola)
+    st.write()
 
 
 
