@@ -6,7 +6,7 @@ st.sidebar.image("imagen1.jpeg", use_container_width=True)
 st.sidebar.title("Menu principal")
 pagina = st.sidebar.radio(
     "Navegacion",
-    ["Como usar...", "Funciones", "Derivadas", "Integrales por Metodo por Sustitucion"]
+    ["Como usar..."]
 )
 
 if pagina == "Como usar...":
