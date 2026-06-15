@@ -8,11 +8,9 @@ pagina = st.sidebar.radio(
     "Navegacion",
     ["Como usar..."]
 )
-
 if pagina == "Como usar...":
     st.image("imagen1.jpeg", width=400)
     st.header("Cada función cuenta una historia Y nosotros te ayudamos a leerla!!")
-    
     st.write(
         "¡DOMINA EL CALCULO SIN COMPLICACIONES CON SMARTFUNCTIONES! "
         "Esta calculadora educativa es la herramienta definitiva para estudiantes de ciencias, "
@@ -28,21 +26,11 @@ elif pagina == "Funciones":
     st.header("Módulo de Funciones")
     st.text_input("Ingrese su funcion")
     st.button("CALCULAR ahora ")
-
-# luciana
-#hola 
-
-
 ##DERIVADAS
 elif pagina == "Derivadas":
     st.image("imagen1.jpeg", width=400)
     st.header("Módulo de Derivadas")
     st.write()
-
-
-
-
-
 ##INTEGRALES POR EL METODO DE SUSTITUCION 
 elif pagina == "Integrales por Metodo por Sustitucion":
     st.image("imagen1.jpeg", width=400)
