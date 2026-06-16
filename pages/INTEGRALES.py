@@ -3,7 +3,7 @@ from sympy import *
 st.set_page_config(page_title="Calculadora de Integrales", page_icon="∫", layout="centered")
 x = symbols('x')
 u = symbols('u')
-st.title("∫ Calculadora de Integrales")
+st.title("Calculadora de Integrales")
 st.markdown("Método de **Sustitución**  — muestra el procedimiento completo paso a paso.")
 st.caption("`x**2` = x²  ·  `x**3` = x³  ·  `sin(x)` `cos(x)` `tan(x)`  ·  `exp(x)` = eˣ  ·  `ln(x)`  ·  `sqrt(x)` = √x  ·  `*` para multiplicar")
 funcion_str = st.text_input("f(x) =", placeholder="Ej: 2*x * exp(x**2)")

@@ -1,28 +1,94 @@
 import streamlit as st
 from sympy import *
+st.image("imagen1.jpeg", width=400)
 st.set_page_config(page_title="Calculadora de Derivadas", page_icon="∂", layout="centered")
 x = symbols('x')
-st.title("∂ Calculadora de Derivadas")
+st.title("Calculadora de Derivadas")
 st.markdown("Escribe la función usando la sintaxis de Python:")
 st.caption("`x**2` = x²  ·  `x**3` = x³  ·  `sin(x)` `cos(x)` `tan(x)`  ·  `exp(x)` = eˣ  ·  `ln(x)` = ln  ·  `sqrt(x)` = √x  ·  `*` para multiplicar")
-funcion_str = st.text_input("f(x) =", placeholder="Ej: 3*x**2 + sin(x)")
+if "funcion_valor" not in st.session_state:
+    st.session_state.funcion_valor = ""
+MAPEO_SIMBOLOS = {
+    "x²":  "**2",
+    "x³":  "**3",
+    "xⁿ":  "**",
+    "eˣ":  "exp(x)",
+    "√":   "sqrt(",
+    "∛":   "**(1/3)",
+    "÷":   "/",
+    "±":   "+-",
+    "log": "log(",
+    "ln":  "ln(",
+    "sin": "sin(",
+    "cos": "cos(",
+    "tan": "tan(",
+    "lim": "limit(",
+    "∫":   "integrate(",
+    "∞":   "oo",
+    "π":   "pi",
+    "θ":   "theta",
+    "≤":   "<=",
+    "≥":   ">=",
+}
+def insertar_simbolo(simbolo):
+    texto = MAPEO_SIMBOLOS.get(simbolo, simbolo)
+    texto = texto.replace("−", "-").replace("–", "-").replace("—", "-")
+    st.session_state.funcion_valor += texto
+def borrar_ultimo():
+    st.session_state.funcion_valor = st.session_state.funcion_valor[:-1]
+def borrar_todo():
+    st.session_state.funcion_valor = ""
+def cargar_ejemplo(expr):
+    st.session_state.funcion_valor = expr
+funcion_str = st.text_input(
+    "f(x) =",
+    value=st.session_state.funcion_valor,
+    placeholder="Ej: 3*x**2 + sin(x)",
+)
+st.session_state.funcion_valor = funcion_str
+st.markdown("**Teclado Matemático**")
+numeros = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "."]
+letras  = ["x", "y", "z", "w", "v", "i"]
+signos  = [
+    "+", "-", "*", "/", "(", ")", "=", "%",
+    "x²", "x³", "xⁿ", "log", "ln", "√", "∛",
+    "≤", "≥", "∫", "lim", "∑", "∞", "π", "θ",
+    "eˣ", "sin", "cos", "tan", "÷", "±",
+]
+tab_num, tab_let, tab_sig = st.tabs(["1,2,3", "x,y,z", "+,-,*"])
+with tab_num:
+    cols_num = st.columns(4)
+    for i, num in enumerate(numeros):
+        cols_num[i % 4].button(num, key=f"num_{num}_{i}", on_click=insertar_simbolo, args=(num,))
+
+with tab_let:
+    cols_let = st.columns(3)
+    for i, let in enumerate(letras):
+        cols_let[i % 3].button(let, key=f"let_{let}_{i}", on_click=insertar_simbolo, args=(let,))
+with tab_sig:
+    cols_sig = st.columns(5)
+    for i, sig in enumerate(signos):
+        cols_sig[i % 5].button(sig, key=f"sig_{sig}_{i}", on_click=insertar_simbolo, args=(sig,))
+st.write("")
+col_b1, col_b2 = st.columns(2)
+with col_b1:
+    st.button("⌫ Borrar último", on_click=borrar_ultimo, use_container_width=True)
+with col_b2:
+    st.button("Borrar todo", on_click=borrar_todo, use_container_width=True)
 st.markdown("**Ejemplos:**")
 ejemplos = {
     "3x³ − 2x² + 5x": "3*x**3 - 2*x**2 + 5*x",
     "sin²(x) + cos(x)": "sin(x)**2 + cos(x)",
-    "e^(x²)": "exp(x**2)",
-    "ln(x³+1)": "ln(x**3 + 1)",
-    "x²·sin(x)": "x**2 * sin(x)",
-    "sin(x)/x²": "sin(x) / x**2",
-    "sin(3x²+1)": "sin(3*x**2 + 1)",
+    "e^(x²)":           "exp(x**2)",
+    "ln(x³+1)":         "ln(x**3 + 1)",
+    "x²·sin(x)":        "x**2 * sin(x)",
+    "sin(x)/x²":        "sin(x) / x**2",
+    "sin(3x²+1)":       "sin(3*x**2 + 1)",
 }
-cols = st.columns(4)
+cols_ej = st.columns(4)
 for i, (nombre, expr) in enumerate(ejemplos.items()):
-    with cols[i % 4]:
-        if st.button(nombre, key=f"ej_{i}"):
-            st.session_state["ejemplo"] = expr
-if "ejemplo" in st.session_state and not funcion_str:
-    funcion_str = st.session_state["ejemplo"]
+    with cols_ej[i % 4]:
+        st.button(nombre, key=f"ej_{i}", on_click=cargar_ejemplo, args=(expr,))
 calcular = st.button("Calcular derivada ▶", type="primary", use_container_width=True)
 def clasificar_expr(expr):
     reglas = []
@@ -34,20 +100,19 @@ def clasificar_expr(expr):
             reglas.append("cociente" if tiene_neg else "producto")
     if isinstance(expr, Pow):
         base, exp_val = expr.args
-        if base == x and exp_val.is_number:     reglas.append("potencia")
-        elif exp_val.is_number:                  reglas.append("cadena_potencia")
-        elif base.is_number:                     reglas.append("exponencial_base")
+        if base == x and exp_val.is_number:    reglas.append("potencia")
+        elif exp_val.is_number:                 reglas.append("cadena_potencia")
+        elif base.is_number:                    reglas.append("exponencial_base")
     if expr.has(sin) or expr.has(cos) or expr.has(tan): reglas.append("trigonometrica")
     if expr.has(exp):  reglas.append("exponencial_e")
     if expr.has(log):  reglas.append("logaritmo")
     if expr.has(sqrt): reglas.append("raiz")
     return list(dict.fromkeys(reglas))
-
 def generar_pasos(expr):
     pasos = []
     def analizar(e, nivel=0):
         if isinstance(e, Add):
-            pasos.append(("regla", "📘 Regla de la Suma/Resta", "Si f(x) = u ± v  →  f'(x) = u' ± v'"))
+            pasos.append(("regla", "Regla de la Suma/Resta", "Si f(x) = u ± v  →  f'(x) = u' ± v'"))
             pasos.append(("info", f"Se identifican **{len(e.args)} términos** que se derivan por separado:", None))
             for i, t in enumerate(e.args, 1):
                 pasos.append(("termino", f"  Término {i}: `{t}`  →  derivada: `{diff(t, x)}`", None))
@@ -61,13 +126,13 @@ def generar_pasos(expr):
                 u = Mul(*num_a) if num_a else S.One
                 v = Mul(*den_a) if den_a else S.One
                 du, dv = diff(u, x), diff(v, x)
-                pasos.append(("regla", "📙 Regla del Cociente", "Si f = u/v  →  f' = (u'v − uv') / v²"))
+                pasos.append(("regla", "Regla del Cociente", "Si f = u/v  →  f' = (u'v − uv') / v²"))
                 pasos.append(("info", f"  u = `{u}`  →  u' = `{du}`", None))
                 pasos.append(("info", f"  v = `{v}`  →  v' = `{dv}`", None))
             elif len(args_no_num) > 1:
                 u, v = args_no_num[0], Mul(*args_no_num[1:])
                 du, dv = diff(u, x), diff(v, x)
-                pasos.append(("regla", "📗 Regla del Producto", "Si f = u·v  →  f' = u'v + uv'"))
+                pasos.append(("regla", "Regla del Producto", "Si f = u·v  →  f' = u'v + uv'"))
                 pasos.append(("info", f"  u = `{u}`  →  u' = `{du}`", None))
                 pasos.append(("info", f"  v = `{v}`  →  v' = `{dv}`", None))
                 analizar(u, nivel + 1)
@@ -77,120 +142,112 @@ def generar_pasos(expr):
         elif isinstance(e, Pow):
             base, exp_val = e.args
             if base == x and exp_val.is_number:
-                pasos.append(("regla", "📕 Regla de la Potencia", "Si f = xⁿ  →  f' = n·xⁿ⁻¹"))
+                pasos.append(("regla", "Regla de la Potencia", "Si f = xⁿ  →  f' = n·xⁿ⁻¹"))
                 pasos.append(("info", f"  x^{exp_val}  →  `{exp_val}·x^{exp_val - 1}`", None))
             elif not base.has(x) and exp_val.has(x):
-                pasos.append(("regla", "📒 Exponencial base constante", "Si f = aˣ  →  f' = aˣ·ln(a)"))
+                pasos.append(("regla", "Exponencial base constante", "Si f = aˣ  →  f' = aˣ·ln(a)"))
             elif exp_val.is_number and base.has(x) and base != x:
                 dg = diff(base, x)
-                pasos.append(("regla", "🔗 Regla de la Cadena + Potencia", "Si f = [g(x)]ⁿ  →  f' = n·[g]ⁿ⁻¹·g'"))
+                pasos.append(("regla", "Regla de la Cadena + Potencia", "Si f = [g(x)]ⁿ  →  f' = n·[g]ⁿ⁻¹·g'"))
                 pasos.append(("info", f"  g(x) = `{base}`  →  g' = `{dg}`", None))
                 analizar(base, nivel + 1)
         elif isinstance(e, sin):
             arg = e.args[0]
             if arg != x:
                 dg = diff(arg, x)
-                pasos.append(("regla", "🔗 Regla de la Cadena + sin", "Si f = sin(g)  →  f' = cos(g)·g'"))
+                pasos.append(("regla", "Regla de la Cadena + sin", "Si f = sin(g)  →  f' = cos(g)·g'"))
                 pasos.append(("info", f"  g(x) = `{arg}`  →  g' = `{dg}`", None))
             else:
-                pasos.append(("regla", "📐 Derivada de sin(x)", "d/dx[sin(x)] = cos(x)"))
+                pasos.append(("regla", "Derivada de sin(x)", "d/dx[sin(x)] = cos(x)"))
         elif isinstance(e, cos):
             arg = e.args[0]
             if arg != x:
                 dg = diff(arg, x)
-                pasos.append(("regla", "🔗 Regla de la Cadena + cos", "Si f = cos(g)  →  f' = −sin(g)·g'"))
+                pasos.append(("regla", "Regla de la Cadena + cos", "Si f = cos(g)  →  f' = −sin(g)·g'"))
                 pasos.append(("info", f"  g(x) = `{arg}`  →  g' = `{dg}`", None))
             else:
-                pasos.append(("regla", "📐 Derivada de cos(x)", "d/dx[cos(x)] = −sin(x)"))
+                pasos.append(("regla", "Derivada de cos(x)", "d/dx[cos(x)] = −sin(x)"))
         elif isinstance(e, tan):
             arg = e.args[0]
             if arg != x:
                 dg = diff(arg, x)
-                pasos.append(("regla", "🔗 Regla de la Cadena + tan", "Si f = tan(g)  →  f' = sec²(g)·g'"))
+                pasos.append(("regla", "Regla de la Cadena + tan", "Si f = tan(g)  →  f' = sec²(g)·g'"))
                 pasos.append(("info", f"  g(x) = `{arg}`  →  g' = `{dg}`", None))
             else:
-                pasos.append(("regla", "📐 Derivada de tan(x)", "d/dx[tan(x)] = sec²(x)"))
+                pasos.append(("regla", "Derivada de tan(x)", "d/dx[tan(x)] = sec²(x)"))
         elif isinstance(e, exp):
             arg = e.args[0]
             if arg != x:
                 dg = diff(arg, x)
-                pasos.append(("regla", "🔗 Regla de la Cadena + eˣ", "Si f = e^g  →  f' = e^g·g'"))
+                pasos.append(("regla", "Regla de la Cadena + eˣ", "Si f = e^g  →  f' = e^g·g'"))
                 pasos.append(("info", f"  g(x) = `{arg}`  →  g' = `{dg}`", None))
                 analizar(arg, nivel + 1)
             else:
-                pasos.append(("regla", "📗 Derivada de eˣ", "d/dx[eˣ] = eˣ"))
+                pasos.append(("regla", "Derivada de eˣ", "d/dx[eˣ] = eˣ"))
         elif isinstance(e, log):
             arg = e.args[0]
             if arg != x:
                 dg = diff(arg, x)
-                pasos.append(("regla", "🔗 Regla de la Cadena + ln", "Si f = ln(g)  →  f' = g'/g"))
+                pasos.append(("regla", "Regla de la Cadena + ln", "Si f = ln(g)  →  f' = g'/g"))
                 pasos.append(("info", f"  g(x) = `{arg}`  →  g' = `{dg}`", None))
                 analizar(arg, nivel + 1)
             else:
-                pasos.append(("regla", "📗 Derivada de ln(x)", "d/dx[ln(x)] = 1/x"))
+                pasos.append(("regla", "Derivada de ln(x)", "d/dx[ln(x)] = 1/x"))
         elif e == x:
-            pasos.append(("regla", "📕 Derivada de x", "d/dx[x] = 1"))
+            pasos.append(("regla", "Derivada de x", "d/dx[x] = 1"))
         elif e.is_number:
-            pasos.append(("regla", "📕 Constante", f"d/dx[{e}] = 0"))
+            pasos.append(("regla", "Constante", f"d/dx[{e}] = 0"))
     analizar(expr)
     return pasos
-
-# ── Resultado ─────────────────────────────────────────────────────────────────
 if calcular and funcion_str:
     try:
         fs = funcion_str.replace("ln(", "log(")
+        fs = fs.replace("−", "-").replace("–", "-").replace("—", "-")
         f_expr = sympify(fs, locals={"x": x, "e": E, "pi": pi})
         f_prima = diff(f_expr, x)
         f_simp  = simplify(f_prima)
-
         st.markdown("---")
-        st.markdown("## 📥 Función ingresada")
+        st.markdown("Función ingresada")
         st.latex(f"f(x) = {latex(f_expr)}")
-
         st.markdown("---")
-        st.markdown("## 🪜 Procedimiento paso a paso")
+        st.markdown("Procedimiento paso a paso")
         pasos = generar_pasos(f_expr)
         n = 1
         for tipo, contenido, formula in pasos:
             if tipo == "regla":
                 st.markdown(f"**Paso {n}: {contenido}**")
-                if formula: st.markdown(f"> 📐 *{formula}*")
+                if formula: st.markdown(f"> *{formula}*")
                 n += 1
             else:
                 st.markdown(contenido)
-
         st.markdown("---")
-        st.markdown("## 🔢 Derivación formal")
+        st.markdown("Derivación formal")
         st.latex(f"f'(x) = \\frac{{d}}{{dx}}\\left[{latex(f_expr)}\\right] = {latex(f_prima)}")
-
         st.markdown("---")
-        st.success("### ✅ Resultado Final")
+        st.success("Resultado Final")
         st.latex(f"f'(x) = {latex(f_simp)}")
-
         f_exp = expand(f_prima)
         if f_exp != f_simp:
             st.markdown("**Forma expandida:**")
             st.latex(f"f'(x) = {latex(f_exp)}")
-
         st.markdown("---")
         st.markdown("Reglas utilizadas")
         tabla = {
-            "suma_resta":       ("Suma/Resta",          "d/dx[u±v] = u'±v'"),
-            "producto":         ("Producto",             "d/dx[u·v] = u'v+uv'"),
-            "cociente":         ("Cociente",             "d/dx[u/v] = (u'v−uv')/v²"),
-            "potencia":         ("Potencia",             "d/dx[xⁿ] = n·xⁿ⁻¹"),
-            "cadena_potencia":  ("Cadena",               "d/dx[g(x)ⁿ] = n·gⁿ⁻¹·g'"),
-            "trigonometrica":   ("Trigonométricas",      "sin'=cos, cos'=−sin, tan'=sec²"),
-            "exponencial_e":    ("Exponencial eˣ",       "d/dx[eˣ]=eˣ  |  d/dx[e^g]=e^g·g'"),
-            "exponencial_base": ("Exponencial base a",   "d/dx[aˣ]=aˣ·ln(a)"),
-            "logaritmo":        ("Logaritmo natural",    "d/dx[ln(x)]=1/x  |  d/dx[ln(g)]=g'/g"),
-            "raiz":             ("Raíz cuadrada",        "d/dx[√x]=1/(2√x)"),
+            "suma_resta":       ("Suma/Resta",         "d/dx[u±v] = u'±v'"),
+            "producto":         ("Producto",            "d/dx[u·v] = u'v+uv'"),
+            "cociente":         ("Cociente",            "d/dx[u/v] = (u'v−uv')/v²"),
+            "potencia":         ("Potencia",            "d/dx[xⁿ] = n·xⁿ⁻¹"),
+            "cadena_potencia":  ("Cadena",              "d/dx[g(x)ⁿ] = n·gⁿ⁻¹·g'"),
+            "trigonometrica":   ("Trigonométricas",     "sin'=cos, cos'=−sin, tan'=sec²"),
+            "exponencial_e":    ("Exponencial eˣ",      "d/dx[eˣ]=eˣ  |  d/dx[e^g]=e^g·g'"),
+            "exponencial_base": ("Exponencial base a",  "d/dx[aˣ]=aˣ·ln(a)"),
+            "logaritmo":        ("Logaritmo natural",   "d/dx[ln(x)]=1/x  |  d/dx[ln(g)]=g'/g"),
+            "raiz":             ("Raíz cuadrada",       "d/dx[√x]=1/(2√x)"),
         }
         for clave in clasificar_expr(f_expr):
             if clave in tabla:
                 nombre, f2 = tabla[clave]
                 st.markdown(f"- **{nombre}**: `{f2}`")
-
     except Exception as err:
         st.error(f"Error: `{err}`")
         st.markdown("**Sintaxis correcta:**")
