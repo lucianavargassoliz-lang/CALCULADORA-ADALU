@@ -1,9 +1,14 @@
 import streamlit as st
 import numpy as np
 from logic.funciones_f import calcular_funcion, graficar_funcion, tabla_valores
-
+#
+#
+#
+#
+#
+#
 if "teclado_grafica" not in st.session_state:
-    
+
     st.session_state.teclado_grafica = ""
 def ingrese_simbolo(simbolo):
     if simbolo == "x²":

@@ -1,6 +1,11 @@
 import streamlit as st
 import sympy as sp
 from logic.funciones_f import generar
+#
+#
+#
+#
+#s
 st.sidebar.image("imagen1.jpeg", use_container_width=True)
 st.sidebar.title("Menu principal")
 pagina = st.sidebar.radio(
