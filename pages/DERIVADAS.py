@@ -1,13 +1,15 @@
 import streamlit as st
-from sympy import *
+import sympy import *
 st.image("imagen1.jpeg", width=400)
 st.set_page_config(page_title="Calculadora de Derivadas", page_icon="∂", layout="centered")
 x = symbols('x')
+
 st.title("Calculadora de Derivadas")
 st.markdown("Escribe la función usando la sintaxis de Python:")
 st.caption("`x**2` = x²  ·  `x**3` = x³  ·  `sin(x)` `cos(x)` `tan(x)`  ·  `exp(x)` = eˣ  ·  `ln(x)` = ln  ·  `sqrt(x)` = √x  ·  `*` para multiplicar")
 if "funcion_valor" not in st.session_state:
     st.session_state.funcion_valor = ""
+    
 MAPEO_SIMBOLOS = {
     "x²":  "**2",
     "x³":  "**3",

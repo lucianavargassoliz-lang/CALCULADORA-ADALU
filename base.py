@@ -1,7 +1,6 @@
 import streamlit as st
-import numpy as np
-import sympy as sp 
-from logic.funciones import generar_funciones_derivada
+import sympy as sp
+from logic.funciones_f import generar
 st.sidebar.image("imagen1.jpeg", use_container_width=True)
 st.sidebar.title("Menu principal")
 pagina = st.sidebar.radio(
