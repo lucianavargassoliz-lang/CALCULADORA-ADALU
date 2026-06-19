@@ -5,6 +5,7 @@ from sympy import *
 
 
 
+#
 st.image("imagen1.jpeg", width=400)
 
 st.set_page_config(page_title="Calculadora de Derivadas", page_icon="∂", layout="centered")
