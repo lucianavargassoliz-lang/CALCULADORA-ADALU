@@ -1,13 +1,15 @@
 import streamlit as st
 from sympy import *
-st.image("imagen1.jpeg", width=400)
+
 st.set_page_config(page_title="Calculadora de Derivadas", page_icon="∂", layout="centered")
 x = symbols('x')
+
 st.title("Calculadora de Derivadas")
 st.markdown("Escribe la función usando la sintaxis de Python:")
 st.caption("`x**2` = x²  ·  `x**3` = x³  ·  `sin(x)` `cos(x)` `tan(x)`  ·  `exp(x)` = eˣ  ·  `ln(x)` = ln  ·  `sqrt(x)` = √x  ·  `*` para multiplicar")
-if "funcion_valor" not in st.session_state:
-    st.session_state.funcion_valor = ""
+if "funcion_input" not in st.session_state:
+    st.session_state["funcion_input"] = ""
+
 MAPEO_SIMBOLOS = {
     "x²":  "**2",
     "x³":  "**3",
@@ -23,6 +25,7 @@ MAPEO_SIMBOLOS = {
     "cos": "cos(",
     "tan": "tan(",
     "lim": "limit(",
+    "∑":   "Sum(",
     "∫":   "integrate(",
     "∞":   "oo",
     "π":   "pi",
@@ -33,20 +36,23 @@ MAPEO_SIMBOLOS = {
 def insertar_simbolo(simbolo):
     texto = MAPEO_SIMBOLOS.get(simbolo, simbolo)
     texto = texto.replace("−", "-").replace("–", "-").replace("—", "-")
-    st.session_state.funcion_valor += texto
+    st.session_state["funcion_input"] += texto
+
 def borrar_ultimo():
-    st.session_state.funcion_valor = st.session_state.funcion_valor[:-1]
+    st.session_state["funcion_input"] = st.session_state["funcion_input"][:-1]
+
 def borrar_todo():
-    st.session_state.funcion_valor = ""
+    st.session_state["funcion_input"] = ""
+
 def cargar_ejemplo(expr):
-    st.session_state.funcion_valor = expr
+    st.session_state["funcion_input"] = expr
 funcion_str = st.text_input(
     "f(x) =",
-    value=st.session_state.funcion_valor,
+    key="funcion_input",
     placeholder="Ej: 3*x**2 + sin(x)",
 )
-st.session_state.funcion_valor = funcion_str
 st.markdown("**Teclado Matemático**")
+
 numeros = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "."]
 letras  = ["x", "y", "z", "w", "v", "i"]
 signos  = [
@@ -56,6 +62,7 @@ signos  = [
     "eˣ", "sin", "cos", "tan", "÷", "±",
 ]
 tab_num, tab_let, tab_sig = st.tabs(["1,2,3", "x,y,z", "+,-,*"])
+
 with tab_num:
     cols_num = st.columns(4)
     for i, num in enumerate(numeros):
@@ -65,6 +72,7 @@ with tab_let:
     cols_let = st.columns(3)
     for i, let in enumerate(letras):
         cols_let[i % 3].button(let, key=f"let_{let}_{i}", on_click=insertar_simbolo, args=(let,))
+
 with tab_sig:
     cols_sig = st.columns(5)
     for i, sig in enumerate(signos):
@@ -89,6 +97,7 @@ cols_ej = st.columns(4)
 for i, (nombre, expr) in enumerate(ejemplos.items()):
     with cols_ej[i % 4]:
         st.button(nombre, key=f"ej_{i}", on_click=cargar_ejemplo, args=(expr,))
+
 calcular = st.button("Calcular derivada ▶", type="primary", use_container_width=True)
 def clasificar_expr(expr):
     reglas = []
@@ -206,9 +215,11 @@ if calcular and funcion_str:
         f_expr = sympify(fs, locals={"x": x, "e": E, "pi": pi})
         f_prima = diff(f_expr, x)
         f_simp  = simplify(f_prima)
+
         st.markdown("---")
         st.markdown("Función ingresada")
         st.latex(f"f(x) = {latex(f_expr)}")
+
         st.markdown("---")
         st.markdown("Procedimiento paso a paso")
         pasos = generar_pasos(f_expr)
@@ -220,16 +231,20 @@ if calcular and funcion_str:
                 n += 1
             else:
                 st.markdown(contenido)
+
         st.markdown("---")
         st.markdown("Derivación formal")
         st.latex(f"f'(x) = \\frac{{d}}{{dx}}\\left[{latex(f_expr)}\\right] = {latex(f_prima)}")
+
         st.markdown("---")
         st.success("Resultado Final")
         st.latex(f"f'(x) = {latex(f_simp)}")
+
         f_exp = expand(f_prima)
         if f_exp != f_simp:
             st.markdown("**Forma expandida:**")
             st.latex(f"f'(x) = {latex(f_exp)}")
+
         st.markdown("---")
         st.markdown("Reglas utilizadas")
         tabla = {
@@ -248,9 +263,11 @@ if calcular and funcion_str:
             if clave in tabla:
                 nombre, f2 = tabla[clave]
                 st.markdown(f"- **{nombre}**: `{f2}`")
+
     except Exception as err:
         st.error(f"Error: `{err}`")
         st.markdown("**Sintaxis correcta:**")
         st.code("3*x**2 + sin(x)\nexp(x**2)\nln(x**3 + 1)\nx**2 * cos(x)\nsin(x) / x**2")
+
 elif calcular and not funcion_str:
     st.warning("Escribe una función primero.")
