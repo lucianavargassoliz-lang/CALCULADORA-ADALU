@@ -112,3 +112,4 @@ def tabla_valores(expr_py, x_min=-15, x_max=15, n=11):
 def generar():
     pass
 
+#
