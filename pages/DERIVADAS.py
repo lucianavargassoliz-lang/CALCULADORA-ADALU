@@ -1,10 +1,7 @@
 import streamlit as st
 import sympy as sp
 from styles import apply_styles
-
 apply_styles()
-
-
 st.set_page_config(page_title="Calculadora de Derivadas", page_icon="∂", layout="centered")
 
 st.image("imagen1.jpeg", width=400)
@@ -12,16 +9,12 @@ st.image("imagen1.jpeg", width=400)
 x = sp.symbols('x')
 
 st.title("Calculadora de Derivadas")
-st.markdown("Escribe la función usando la sintaxis de Python:")
+st.markdown("Escribe la función usando la sintaxis de Python aqui unos ejemplos para que lo puedas realizar")
 st.caption("`x**2` = x²  ·  `x**3` = x³  ·  `sin(x)` `cos(x)` `tan(x)`  ·  `exp(x)` = eˣ  ·  `ln(x)` = ln  ·  `sqrt(x)` = √x  ·  `*` para multiplicar")
-
-
 if "funcion_input" not in st.session_state:
     st.session_state["funcion_input"] = ""
-
 if "funcion_valor" not in st.session_state:
     st.session_state.funcion_valor = ""
-
 MAPEO_SIMBOLOS = {
     "x²":  "**2",
     "x³":  "**3",
@@ -46,10 +39,8 @@ MAPEO_SIMBOLOS = {
     "≥":   ">=",
 }
 
-
 def insertar_simbolo(simbolo):
     texto_a_insertar = MAPEO_SIMBOLOS.get(simbolo, simbolo)
-    
     texto_a_insertar = texto_a_insertar.replace("−", "-").replace("–", "-").replace("—", "-")
     st.session_state["funcion_input"] += texto_a_insertar
 
@@ -62,14 +53,12 @@ def borrar_todo():
 def cargar_ejemplo(expresion_ejemplo):
     st.session_state["funcion_input"] = expresion_ejemplo
 
-
 funcion_str = st.text_input(
     "f(x) =",
     key="funcion_input",
     placeholder="Ej: 3*x**2 + sin(x)",
 )
-
-st.markdown("**Teclado Matemático**")
+st.markdown("TECLADO INGRESA TU DERIVADA")
 
 numeros = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "."]
 letras  = ["x", "y", "z", "w", "v", "i"]
@@ -81,17 +70,14 @@ signos  = [
 ]
 
 tab_num, tab_let, tab_sig = st.tabs(["1,2,3", "x,y,z", "+,-,*"])
-
 with tab_num:
     cols_num = st.columns(4)
     for idx, num in enumerate(numeros):
         cols_num[idx % 4].button(num, key=f"num_{num}_{idx}", on_click=insertar_simbolo, args=(num,))
-
 with tab_let:
     cols_let = st.columns(3)
     for idx, let in enumerate(letras):
         cols_let[idx % 3].button(let, key=f"let_{let}_{idx}", on_click=insertar_simbolo, args=(let,))
-
 with tab_sig:
     cols_sig = st.columns(5)
     for idx, sig in enumerate(signos):
@@ -120,12 +106,14 @@ for idx, (nombre, expr) in enumerate(ejemplos.items()):
     with cols_ej[idx % 4]:
         st.button(nombre, key=f"ej_{idx}", on_click=cargar_ejemplo, args=(expr,))
 
-calcular = st.button("Calcular derivada ▶", type="primary", use_container_width=True)
+calcular = st.button("CALCULAR DERIVADA", type="primary", use_container_width=True)
+
+# PARA NO PERDER LA ESTRUCTURA 
+funcion_str = st.session_state.get("funcion_input", "")
 
 def detectar_reglas_usadas(expr):
     """ Analiza la estructura de la expresión de SymPy para ver qué reglas se aplicaron """
     reglas_detectadas = []
-    
     if isinstance(expr, sp.Add): 
         reglas_detectadas.append("suma_resta")
         
@@ -155,13 +143,12 @@ def detectar_reglas_usadas(expr):
 def obtener_pasos_derivacion(expr):
     """ Recorre la expresión de forma recursiva para armar la explicación paso a paso """
     pasos = []
-    
     def procesar_nodo(e, nivel=0):
         if isinstance(e, sp.Add):
             pasos.append(("regla", "Regla de la Suma/Resta", "Si f(x) = u ± v  →  f'(x) = u' ± v'"))
             pasos.append(("info", f"Se identifican **{len(e.args)} términos** que se derivan por separado:", None))
             for idx, termino in enumerate(e.args, 1):
-                pasos.append(("termino", f"  Término {idx}: `{termino}`  →  derivada: `{sp.diff(termino, x)}`", None))
+                pasos.append(("latex_termino", f"\\text{{Término {idx}:}}\\quad {sp.latex(termino)} \\quad\\rightarrow\\quad {sp.latex(sp.diff(termino, x))}", None))
                 procesar_nodo(termino, nivel + 1)
                 
         elif isinstance(e, sp.Mul):
@@ -178,8 +165,8 @@ def obtener_pasos_derivacion(expr):
                 du, dv = sp.diff(u, x), sp.diff(v, x)
                 
                 pasos.append(("regla", "Regla del Cociente", "Si f = u/v  →  f' = (u'v − uv') / v²"))
-                pasos.append(("info", f"  u = `{u}`  →  u' = `{du}`", None))
-                pasos.append(("info", f"  v = `{v}`  →  v' = `{dv}`", None))
+                pasos.append(("latex_info", f"u = {sp.latex(u)} \\quad\\Rightarrow\\quad u' = {sp.latex(du)}", None))
+                pasos.append(("latex_info", f"v = {sp.latex(v)} \\quad\\Rightarrow\\quad v' = {sp.latex(dv)}", None))
                 
             elif len(args_no_num) > 1:
                 
@@ -187,8 +174,8 @@ def obtener_pasos_derivacion(expr):
                 du, dv = sp.diff(u, x), sp.diff(v, x)
                 
                 pasos.append(("regla", "Regla del Producto", "Si f = u·v  →  f' = u'v + uv'"))
-                pasos.append(("info", f"  u = `{u}`  →  u' = `{du}`", None))
-                pasos.append(("info", f"  v = `{v}`  →  v' = `{dv}`", None))
+                pasos.append(("latex_info", f"u = {sp.latex(u)} \\quad\\Rightarrow\\quad u' = {sp.latex(du)}", None))
+                pasos.append(("latex_info", f"v = {sp.latex(v)} \\quad\\Rightarrow\\quad v' = {sp.latex(dv)}", None))
                 procesar_nodo(u, nivel + 1)
                 procesar_nodo(v, nivel + 1)
             else:
@@ -198,13 +185,13 @@ def obtener_pasos_derivacion(expr):
             base, exponente = e.args
             if base == x and exponente.is_number:
                 pasos.append(("regla", "Regla de la Potencia", "Si f = xⁿ  →  f' = n·xⁿ⁻¹"))
-                pasos.append(("info", f"  x^{exponente}  →  `{exponente}·x^{exponente - 1}`", None))
+                pasos.append(("latex_info", f"x^{{{exponente}}} \\quad\\rightarrow\\quad {sp.latex(sp.diff(e, x))}", None))
             elif not base.has(x) and exponente.has(x):
                 pasos.append(("regla", "Exponencial base constante", "Si f = aˣ  →  f' = aˣ·ln(a)"))
             elif exponente.is_number and base.has(x) and base != x:
                 dg = sp.diff(base, x)
                 pasos.append(("regla", "Regla de la Cadena + Potencia", "Si f = [g(x)]ⁿ  →  f' = n·[g]ⁿ⁻¹·g'"))
-                pasos.append(("info", f"  g(x) = `{base}`  →  g' = `{dg}`", None))
+                pasos.append(("latex_info", f"g(x) = {sp.latex(base)} \\quad\\Rightarrow\\quad g' = {sp.latex(dg)}", None))
                 procesar_nodo(base, nivel + 1)
                 
         elif isinstance(e, sp.sin):
@@ -212,7 +199,7 @@ def obtener_pasos_derivacion(expr):
             if arg != x:
                 dg = sp.diff(arg, x)
                 pasos.append(("regla", "Regla de la Cadena + sin", "Si f = sin(g)  →  f' = cos(g)·g'"))
-                pasos.append(("info", f"  g(x) = `{arg}`  →  g' = `{dg}`", None))
+                pasos.append(("latex_info", f"g(x) = {sp.latex(arg)} \\quad\\Rightarrow\\quad g' = {sp.latex(dg)}", None))
             else:
                 pasos.append(("regla", "Derivada de sin(x)", "d/dx[sin(x)] = cos(x)"))
                 
@@ -221,7 +208,7 @@ def obtener_pasos_derivacion(expr):
             if arg != x:
                 dg = sp.diff(arg, x)
                 pasos.append(("regla", "Regla de la Cadena + cos", "Si f = cos(g)  →  f' = −sin(g)·g'"))
-                pasos.append(("info", f"  g(x) = `{arg}`  →  g' = `{dg}`", None))
+                pasos.append(("latex_info", f"g(x) = {sp.latex(arg)} \\quad\\Rightarrow\\quad g' = {sp.latex(dg)}", None))
             else:
                 pasos.append(("regla", "Derivada de cos(x)", "d/dx[cos(x)] = −sin(x)"))
                 
@@ -230,7 +217,7 @@ def obtener_pasos_derivacion(expr):
             if arg != x:
                 dg = sp.diff(arg, x)
                 pasos.append(("regla", "Regla de la Cadena + tan", "Si f = tan(g)  →  f' = sec²(g)·g'"))
-                pasos.append(("info", f"  g(x) = `{arg}`  →  g' = `{dg}`", None))
+                pasos.append(("latex_info", f"g(x) = {sp.latex(arg)} \\quad\\Rightarrow\\quad g' = {sp.latex(dg)}", None))
             else:
                 pasos.append(("regla", "Derivada de tan(x)", "d/dx[tan(x)] = sec²(x)"))
                 
@@ -239,7 +226,7 @@ def obtener_pasos_derivacion(expr):
             if arg != x:
                 dg = sp.diff(arg, x)
                 pasos.append(("regla", "Regla de la Cadena + eˣ", "Si f = e^g  →  f' = e^g·g'"))
-                pasos.append(("info", f"  g(x) = `{arg}`  →  g' = `{dg}`", None))
+                pasos.append(("latex_info", f"g(x) = {sp.latex(arg)} \\quad\\Rightarrow\\quad g' = {sp.latex(dg)}", None))
                 procesar_nodo(arg, nivel + 1)
             else:
                 pasos.append(("regla", "Derivada de eˣ", "d/dx[eˣ] = eˣ"))
@@ -249,7 +236,7 @@ def obtener_pasos_derivacion(expr):
             if arg != x:
                 dg = sp.diff(arg, x)
                 pasos.append(("regla", "Regla de la Cadena + ln", "Si f = ln(g)  →  f' = g'/g"))
-                pasos.append(("info", f"  g(x) = `{arg}`  →  g' = `{dg}`", None))
+                pasos.append(("latex_info", f"g(x) = {sp.latex(arg)} \\quad\\Rightarrow\\quad g' = {sp.latex(dg)}", None))
                 procesar_nodo(arg, nivel + 1)
             else:
                 pasos.append(("regla", "Derivada de ln(x)", "d/dx[ln(x)] = 1/x"))
@@ -261,7 +248,6 @@ def obtener_pasos_derivacion(expr):
             
     procesar_nodo(expr)
     return pasos
-
 
 if calcular and funcion_str:
     try:
@@ -288,6 +274,8 @@ if calcular and funcion_str:
                 if formula: 
                     st.markdown(f"> *{formula}*")
                 contador_pasos += 1
+            elif tipo in ("latex_info", "latex_termino"):
+                st.latex(contenido)
             else:
                 st.markdown(contenido)
 
@@ -296,7 +284,7 @@ if calcular and funcion_str:
         st.latex(f"f'(x) = \\frac{{d}}{{dx}}\\left[{sp.latex(f_expr)}\\right] = {sp.latex(f_prima)}")
 
         st.markdown("---")
-        st.success("Resultado Final")
+        st.success("RESULTADO FINAL")
         st.latex(f"f'(x) = {sp.latex(f_simp)}")
 
         f_exp = sp.expand(f_prima)
@@ -307,23 +295,80 @@ if calcular and funcion_str:
         st.markdown("---")
         st.markdown("Reglas utilizadas")
         tabla_reglas = {
-            "suma_resta":       ("Suma/Resta",         "d/dx[u±v] = u'±v'"),
-            "producto":         ("Producto",            "d/dx[u·v] = u'v+uv'"),
-            "cociente":         ("Cociente",            "d/dx[u/v] = (u'v−uv')/v²"),
-            "potencia":         ("Potencia",            "d/dx[xⁿ] = n·xⁿ⁻¹"),
-            "cadena_potencia":  ("Cadena",              "d/dx[g(x)ⁿ] = n·gⁿ⁻¹·g'"),
-            "trigonometrica":   ("Trigonométricas",     "sin'=cos, cos'=−sin, tan'=sec²"),
-            "exponencial_e":    ("Exponencial eˣ",      "d/dx[eˣ]=eˣ  |  d/dx[e^g]=e^g·g'"),
-            "exponencial_base": ("Exponencial base a",  "d/dx[aˣ]=aˣ·ln(a)"),
-            "logaritmo":        ("Logaritmo natural",   "d/dx[ln(x)]=1/x  |  d/dx[ln(g)]=g'/g"),
-            "raiz":             ("Raíz cuadrada",       "d/dx[√x]=1/(2√x)"),
+            "suma_resta":       ("Suma / Resta",          r"\frac{d}{dx}[u \pm v] = u' \pm v'"),
+            "producto":         ("Producto",               r"\frac{d}{dx}[u \cdot v] = u'v + uv'"),
+            "cociente":         ("Cociente",               r"\frac{d}{dx}\left[\frac{u}{v}\right] = \frac{u'v - uv'}{v^2}"),
+            "potencia":         ("Potencia",               r"\frac{d}{dx}[x^n] = n \cdot x^{n-1}"),
+            "cadena_potencia":  ("Regla de la Cadena",     r"\frac{d}{dx}[g(x)^n] = n \cdot g^{n-1} \cdot g'"),
+            "trigonometrica":   ("Trigonométricas",        r"\sin' = \cos,\quad \cos' = -\sin,\quad \tan' = \sec^2"),
+            "exponencial_e":    ("Exponencial e",          r"\frac{d}{dx}[e^x] = e^x \quad|\quad \frac{d}{dx}[e^{g}] = e^{g} \cdot g'"),
+            "exponencial_base": ("Exponencial base a",     r"\frac{d}{dx}[a^x] = a^x \cdot \ln(a)"),
+            "logaritmo":        ("Logaritmo natural",      r"\frac{d}{dx}[\ln x] = \frac{1}{x} \quad|\quad \frac{d}{dx}[\ln g] = \frac{g'}{g}"),
+            "raiz":             ("Raíz cuadrada",          r"\frac{d}{dx}[\sqrt{x}] = \frac{1}{2\sqrt{x}}"),
         }
         
         for clave in detectar_reglas_usadas(f_expr):
             if clave in tabla_reglas:
                 nombre_regla, formula_regla = tabla_reglas[clave]
-                st.markdown(f"- **{nombre_regla}**: `{formula_regla}`")
+                st.markdown(f"**{nombre_regla}**")
+                st.latex(formula_regla)
+##GRAFICA DE DERIVADAS 
+        st.markdown("")
+        st.markdown("GRAFICA DE f(x) y f'(x)")
+        import numpy as np
+        import matplotlib.pyplot as plt
+        x_min = -5.0
+        x_max =  5.0
+        mostrar_f      = st.checkbox("Mostrar f(x)",   value=True,  key="check_f")
+        mostrar_prima  = st.checkbox("Mostrar f'(x)",  value=True,  key="check_fp")
 
+        if x_min >= x_max:
+            st.warning("El valor de x mínimo debe ser menor que x máximo.")
+        else:
+            f_num      = sp.lambdify(x, f_expr,  modules=["numpy"])
+            fprima_num = sp.lambdify(x, f_simp,  modules=["numpy"])
+            xs = np.linspace(x_min, x_max, 800)
+            try:
+                ys_f  = np.array(f_num(xs),      dtype=float)
+                ys_fp = np.array(fprima_num(xs), dtype=float)
+                ##NOS AYUDA A QUE LA GRAFICA SEA LEGIBLE
+                LIMITE = 1e6
+                ys_f  = np.where(np.abs(ys_f)  > LIMITE, np.nan, ys_f)
+                ys_fp = np.where(np.abs(ys_fp) > LIMITE, np.nan, ys_fp)
+
+                fig, ax = plt.subplots(figsize=(8, 4))
+
+                if mostrar_f:
+                    ax.plot(xs, ys_f,  label=f"f(x) = ${sp.latex(f_expr)}$",
+                            color="#1fafb4", linewidth=2)
+                if mostrar_prima:
+                    ax.plot(xs, ys_fp, label=f"f'(x) = ${sp.latex(f_simp)}$",
+                            color="#8f0eff", linewidth=2, linestyle="--")
+
+                ax.axhline(0, color="black", linewidth=0.8, linestyle="-")
+                ax.axvline(0, color="black", linewidth=0.8, linestyle="-")
+                ax.set_xlabel("x")
+                ax.set_ylabel("y")
+                ax.legend(fontsize=9)
+                ax.grid(True, alpha=0.3)
+                ax.set_xlim(x_min, x_max)
+
+                valores_validos = []
+                if mostrar_f:
+                    valores_validos.append(ys_f[np.isfinite(ys_f)])
+                if mostrar_prima:
+                    valores_validos.append(ys_fp[np.isfinite(ys_fp)])
+                if valores_validos:
+                    todos = np.concatenate(valores_validos)
+                    if len(todos) > 0:
+                        margen = (todos.max() - todos.min()) * 0.1 or 1
+                        ax.set_ylim(todos.min() - margen, todos.max() + margen)
+
+                st.pyplot(fig)
+                plt.close(fig)
+
+            except Exception as graf_err:
+                st.error(f"No se pudo graficar: `{graf_err}`")
     except Exception as err:
         st.error(f"Error: `{err}`")
         st.markdown("**Sintaxis correcta:**")
