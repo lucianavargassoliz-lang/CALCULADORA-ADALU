@@ -3,6 +3,8 @@ import sympy as sp
 from styles import apply_styles
 import numpy as np
 import matplotlib.pyplot as plt
+import io
+from matplotlib.backends.backend_pdf import PdfPages
 
 apply_styles()
 st.set_page_config(page_title="Calculadora de Derivadas", page_icon="∂", layout="centered")
@@ -218,7 +220,20 @@ def graficar_funcion_y_derivada(funcion, derivada, variable):
         ax.grid(True)
 
         st.pyplot(fig)
+        ##pdf
+        import io
 
+        buf = io.BytesIO()
+        fig.savefig(buf, format="pdf", bbox_inches="tight")
+        buf.seek(0)
+
+        st.download_button(
+    label="Descargar gráfica en PDF",
+    data=buf,
+    file_name="grafica_derivada.pdf",
+    mime="application/pdf"
+)
+        ##
     except:
         st.warning("No se pudo graficar.")
         ##fin 

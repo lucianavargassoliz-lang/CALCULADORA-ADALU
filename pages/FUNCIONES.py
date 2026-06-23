@@ -2,6 +2,8 @@ import streamlit as st
 import numpy as np
 from logic.funciones_f import calcular_funcion, graficar_funcion, tabla_valores
 from styles import apply_styles
+import io
+from matplotlib.backends.backend_pdf import PdfPages
 apply_styles()
 if "teclado_grafica" not in st.session_state:
     st.session_state.teclado_grafica = ""
@@ -75,6 +77,20 @@ with col_derecha:
             st.success(f"✓ {tipo}: `{texto}`")
             figura = graficar_funcion(expr_py, texto, x_min, x_max)
             st.pyplot(figura)
+            # PDF
+            buf = io.BytesIO()
+            with PdfPages(buf) as pdf:
+             pdf.savefig(figura, bbox_inches="tight")
+
+            buf.seek(0)
+            pdf_bytes = buf.read()
+            #boton
+            st.download_button(
+    label="Descargar gráfica en PDF",
+    data=pdf_bytes,
+    file_name="grafica_funcion.pdf",
+    mime="application/pdf"
+)
 
             if st.checkbox("Mostrar tabla de valores"):
                 df = tabla_valores(expr_py, x_min, x_max)

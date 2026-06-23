@@ -3,29 +3,35 @@ import sympy as sp
 from styles import apply_styles
 import numpy as np
 import matplotlib.pyplot as plt
+##
 
 def graficar_integral_indefinida(funcion_texto, x_min, x_max):
     try:
         x = sp.Symbol('x')
         funcion = sp.sympify(funcion_texto)
         integral = sp.integrate(funcion, x)
-
         f = sp.lambdify(x, funcion, "numpy")
         F = sp.lambdify(x, integral, "numpy")
-
         valores_x = np.linspace(x_min, x_max, 400)
         valores_y = f(valores_x)
         valores_F = F(valores_x)
-
         fig, ax = plt.subplots()
         ax.plot(valores_x, valores_y, label="f(x)")
         ax.plot(valores_x, valores_F, label="F(x)", linestyle="--")
-
         ax.legend()
         ax.grid(True)
-
         st.pyplot(fig)
-
+        ##pdf
+        import io
+        buf = io.BytesIO()
+        fig.savefig(buf, format="pdf", bbox_inches="tight")
+        buf.seek(0)
+        st.download_button(
+    label="Descargar gráfica en PDF",
+    data=buf,
+    file_name="grafica_integral.pdf",
+    mime="application/pdf"
+)
     except:
         st.warning("UPS NO SE PUDO GRAFICAR")
 ##grafica
