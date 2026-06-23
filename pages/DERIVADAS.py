@@ -1,6 +1,8 @@
 import streamlit as st
 import sympy as sp
 from styles import apply_styles
+import numpy as np
+import matplotlib.pyplot as plt
 
 apply_styles()
 st.set_page_config(page_title="Calculadora de Derivadas", page_icon="∂", layout="centered")
@@ -194,7 +196,32 @@ def obtener_pasos(expr):
 
     procesar(expr)
     return pasos
+##grafica
+def graficar_funcion_y_derivada(funcion, derivada, variable):
+    try:
+        fn_original = sp.lambdify(variable, funcion, "numpy")
+        fn_derivada = sp.lambdify(variable, derivada, "numpy")
 
+        valores_x = np.linspace(-10, 10, 400)
+        valores_y_orig = fn_original(valores_x)
+        valores_y_deriv = fn_derivada(valores_x)
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(valores_x, valores_y_orig, label="f(x)")
+        ax.plot(valores_x, valores_y_deriv, label="f'(x)", linestyle="--")
+
+        ax.axhline(0)
+        ax.axvline(0)
+
+        ax.set_title("f(x) y su derivada")
+        ax.legend()
+        ax.grid(True)
+
+        st.pyplot(fig)
+
+    except:
+        st.warning("No se pudo graficar.")
+        ##fin 
 
 if calcular and funcion_str:
     try:
@@ -227,6 +254,9 @@ if calcular and funcion_str:
         st.markdown("---")
         st.success("RESULTADO FINAL")
         st.latex(f"f'(x) = {sp.latex(f_simp)}")
+        st.markdown("---")
+        st.markdown("GRAFICA DE LA FUNCION Y SU DERIVADA")
+        graficar_funcion_y_derivada(f_expr, f_prima, x)
 
         fe = sp.expand(f_prima)
         if fe != f_simp:
@@ -260,67 +290,6 @@ if calcular and funcion_str:
 
 elif calcular and not funcion_str:
     st.warning("Escribe una función primero.")
-##GRAFICA DE DERIVADAS 
-    st.markdown("")
-    st.markdown("GRAFICA DE f(x) y f'(x)")
-    import numpy as np
-    import matplotlib.pyplot as plt
-    x_min = -5.0
-    x_max =  5.0
-    mostrar_f      = st.checkbox("Mostrar f(x)",   value=True,  key="check_f")
-    mostrar_prima  = st.checkbox("Mostrar f'(x)",  value=True,  key="check_fp")
 
-    if x_min >= x_max:
-            st.warning("El valor de x mínimo debe ser menor que x máximo.")
-    else:
-        f_num      = sp.lambdify(x, f_expr,  modules=["numpy"])
-        fprima_num = sp.lambdify(x, f_simp,  modules=["numpy"])
-        xs = np.linspace(x_min, x_max, 800)
-        try:
-            ys_f  = np.array(f_num(xs),      dtype=float)
-            ys_fp = np.array(fprima_num(xs), dtype=float)
-                ##NOS AYUDA A QUE LA GRAFICA SEA LEGIBLE
-            LIMITE = 1e6
-            ys_f  = np.where(np.abs(ys_f)  > LIMITE, np.nan, ys_f)
-            ys_fp = np.where(np.abs(ys_fp) > LIMITE, np.nan, ys_fp)
 
-            fig, ax = plt.subplots(figsize=(8, 4))
 
-            if mostrar_f:
-                ax.plot(xs, ys_f,  label=f"f(x) = ${sp.latex(f_expr)}$",
-                            color="#1fafb4", linewidth=2)
-            if mostrar_prima:
-                    ax.plot(xs, ys_fp, label=f"f'(x) = ${sp.latex(f_simp)}$",
-                        color="#8f0eff", linewidth=2, linestyle="--")
-
-            ax.axhline(0, color="black", linewidth=0.8, linestyle="-")
-            ax.axvline(0, color="black", linewidth=0.8, linestyle="-")
-            ax.set_xlabel("x")
-            ax.set_ylabel("y")
-            ax.legend(fontsize=9)
-            ax.grid(True, alpha=0.3)
-            ax.set_xlim(x_min, x_max)
-
-            valores_validos = []
-            if mostrar_f:
-                valores_validos.append(ys_f[np.isfinite(ys_f)])
-            if mostrar_prima:
-                valores_validos.append(ys_fp[np.isfinite(ys_fp)])
-            if valores_validos:
-                todos = np.concatenate(valores_validos)
-            if len(todos) > 0:
-                margen = (todos.max() - todos.min()) * 0.1 or 1
-                ax.set_ylim(todos.min() - margen, todos.max() + margen)
-
-                st.pyplot(fig)
-                plt.close(fig)
-
-        except Exception as graf_err:
-                st.error(f"No se pudo graficar: `{graf_err}`")
-        except Exception as err:
-        st.error(f"Error: `{err}`")
-        st.markdown("**Sintaxis correcta:**")
-        st.code("3*x**2 + sin(x)\nexp(x**2)\nln(x**3 + 1)\nx**2 * cos(x)\nsin(x) / x**2")
-
-elif calcular and not funcion_str:
-    st.warning("Escribe una función primero.")
