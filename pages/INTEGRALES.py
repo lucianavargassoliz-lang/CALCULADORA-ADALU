@@ -1,6 +1,34 @@
 import streamlit as st
 import sympy as sp
 from styles import apply_styles
+import numpy as np
+import matplotlib.pyplot as plt
+
+def graficar_integral_indefinida(funcion_texto, x_min, x_max):
+    try:
+        x = sp.Symbol('x')
+        funcion = sp.sympify(funcion_texto)
+        integral = sp.integrate(funcion, x)
+
+        f = sp.lambdify(x, funcion, "numpy")
+        F = sp.lambdify(x, integral, "numpy")
+
+        valores_x = np.linspace(x_min, x_max, 400)
+        valores_y = f(valores_x)
+        valores_F = F(valores_x)
+
+        fig, ax = plt.subplots()
+        ax.plot(valores_x, valores_y, label="f(x)")
+        ax.plot(valores_x, valores_F, label="F(x)", linestyle="--")
+
+        ax.legend()
+        ax.grid(True)
+
+        st.pyplot(fig)
+
+    except:
+        st.warning("UPS NO SE PUDO GRAFICAR")
+##grafica
 
 apply_styles()
 
@@ -224,6 +252,19 @@ if calcular and funcion_str:
                 st.markdown("---")
                 st.success("Resultado Final")
                 st.latex(f"\\int {sp.latex(f_expr)} \\, dx = {sp.latex(contenido)} + C")
+                ##
+                st.markdown("---")
+                st.subheader("GRAFICA DE LA FUNCION ORIGINAL Y DE LA INTEGRAL f(x) y F(x)")
+
+        if funcion_str.strip():
+          col_s1, col_s2 = st.columns(2)
+        with col_s1:
+         x_min = st.slider("X mínimo:", min_value=-50, max_value=-1, value=-10, step=1)
+        with col_s2:
+         x_max = st.slider("X máximo:", min_value=1, max_value=50, value=10, step=1)
+
+        graficar_integral_indefinida(funcion_str, x_min, x_max)
+                ##
                 
         st.markdown("---")
         st.markdown("Verificación")
