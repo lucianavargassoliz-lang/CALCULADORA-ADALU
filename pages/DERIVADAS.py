@@ -3,9 +3,6 @@ import sympy as sp
 from styles import apply_styles
 import numpy as np
 import matplotlib.pyplot as plt
-import io
-from matplotlib.backends.backend_pdf import PdfPages
-
 apply_styles()
 st.set_page_config(page_title="Calculadora de Derivadas", page_icon="∂", layout="centered")
 st.image("imagen1.jpeg", width=400)
