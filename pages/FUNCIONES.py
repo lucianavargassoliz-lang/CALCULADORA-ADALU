@@ -5,6 +5,7 @@ from styles import apply_styles
 import io
 from matplotlib.backends.backend_pdf import PdfPages
 apply_styles()
+st.image("imagen2.jpeg", width=400)
 if "teclado_grafica" not in st.session_state:
     st.session_state.teclado_grafica = ""
 def ingrese_simbolo(simbolo):

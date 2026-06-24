@@ -4,7 +4,7 @@ from styles import apply_styles
 import numpy as np
 import matplotlib.pyplot as plt
 ##
-
+st.image("imagen2.jpeg", width=400)
 def graficar_integral_indefinida(funcion_texto, x_min, x_max):
     try:
         x = sp.Symbol('x')

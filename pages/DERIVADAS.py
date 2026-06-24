@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 apply_styles()
 st.set_page_config(page_title="Calculadora de Derivadas", page_icon="∂", layout="centered")
-st.image("imagen1.jpeg", width=400)
+st.image("imagen2.jpeg", width=400)
 
 x = sp.symbols('x')
 
@@ -225,7 +225,7 @@ def graficar_funcion_y_derivada(funcion, derivada, variable):
         buf.seek(0)
 
         st.download_button(
-    label="Descargar gráfica en PDF",
+    label="Descargar gráfica en PDF", 
     data=buf,
     file_name="grafica_derivada.pdf",
     mime="application/pdf"

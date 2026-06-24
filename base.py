@@ -1,7 +1,7 @@
 import streamlit as st
 from styles import apply_styles
 import base64
-st.image("imagen1.jpeg", width=400)
+st.image("imagen2.jpeg", width=400)
 
 
 st.set_page_config(
