@@ -19,7 +19,7 @@ def ingrese_simbolo(simbolo):
     st.session_state.teclado_grafica += conversiones.get(simbolo, simbolo)
 def borrar_todo():
     st.session_state.teclado_grafica = ""
-st.image("imagen1.jpeg", width=400)
+
 st.title("GRAFICADOR DE FUNCIONES")
 col_izquierda, col_derecha = st.columns([1, 1.2])
 with col_izquierda:

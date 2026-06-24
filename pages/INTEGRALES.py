@@ -4,20 +4,24 @@ from styles import apply_styles
 import numpy as np
 import matplotlib.pyplot as plt
 ##
-st.image("imagen2.jpeg", width=400)
 def graficar_integral_indefinida(funcion_texto, x_min, x_max):
     try:
         x = sp.Symbol('x')
         funcion = sp.sympify(funcion_texto)
         integral = sp.integrate(funcion, x)
+
         f = sp.lambdify(x, funcion, "numpy")
         F = sp.lambdify(x, integral, "numpy")
+
         valores_x = np.linspace(x_min, x_max, 400)
         valores_y = f(valores_x)
         valores_F = F(valores_x)
         fig, ax = plt.subplots()
+
         ax.plot(valores_x, valores_y, label="f(x)")
         ax.plot(valores_x, valores_F, label="F(x)", linestyle="--")
+        ##para area sombreada
+        ax.fill_between(valores_x, valores_y, alpha=0.3)
         ax.legend()
         ax.grid(True)
         st.pyplot(fig)
