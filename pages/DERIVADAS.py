@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 apply_styles()
 st.set_page_config(page_title="Calculadora de Derivadas", page_icon="∂", layout="centered")
 st.image("imagen2.jpeg", width=400)
-#svahfsdgjfa
 
 x = sp.symbols('x')
 
