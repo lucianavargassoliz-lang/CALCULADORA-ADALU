@@ -304,4 +304,4 @@ elif calcular and not funcion_str:
     st.warning("Escribe una función primero.")
 
 
-
+##s
